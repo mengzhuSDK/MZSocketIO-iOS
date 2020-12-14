@@ -161,7 +161,9 @@ static NSString *SIOMD5(NSString *string) {
 }
 
 - (void)dealloc {
-    [self close];
+    [self.javascriptWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:@"about:blank"]]];
+    [self.javascriptWebView reload];
+    self.javascriptWebView = nil;
 }
 
 // Accessors
@@ -228,9 +230,7 @@ static NSString *SIOMD5(NSString *string) {
 }
 
 - (void)close {
-    [self.javascriptWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:@"about:blank"]]];
-    [self.javascriptWebView reload];
-    self.javascriptWebView = nil;
+
 }
 
 @end
