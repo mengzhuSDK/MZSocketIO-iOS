@@ -162,7 +162,6 @@ static NSString *SIOMD5(NSString *string) {
     dispatch_async(dispatch_get_main_queue(), ^{
         response(socket);
     });
-};
 }
 
 - (void)dealloc {

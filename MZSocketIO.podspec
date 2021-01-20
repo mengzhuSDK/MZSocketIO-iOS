@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.authors      = "Mengzhu"
   s.name         = "MZSocketIO"
-  s.version      = "0.0.4"
+  s.version      = "0.0.5"
   s.summary      = "MZSocketIO iOS SDK"
   s.description  = "Provide MZSocketIO Server Function"
   s.homepage     = "http://www.zmengzhu.com"
