@@ -232,10 +232,10 @@ static NSString *SIOMD5(NSString *string) {
 }
 
 - (void)close {
-    [socket.javascriptWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:@"about:blank"]]];
+//    [socket.javascriptWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:@"about:blank"]]];
     [socket.thread cancel];
     socket.thread = nil;
-    [socket.javascriptWebView reload];
+//    [socket.javascriptWebView reload];
     socket.javascriptWebView = nil;
     socket = nil;
 }
