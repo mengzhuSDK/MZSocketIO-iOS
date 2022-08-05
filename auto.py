@@ -110,7 +110,7 @@ def updateVersion():
 
 
 def libLint():
-    print("-------- waiting for pod lib lint checking ...... ---------")
+    print("-------- waiting for pod lib lint checking ...... ---------" + lib_command)
     os.system(lib_command)
 
 def gitOperation():
