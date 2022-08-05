@@ -95,7 +95,7 @@ def updateVersion():
 
                 # complete new_line
 
-                print "this is new tag  " + new_tag
+                print ("this is new tag  " + new_tag)
                 find_version_flag = True
 
         file_data += line
@@ -106,7 +106,7 @@ def updateVersion():
 
     f.close()
 
-    print "--------- auto update version -------- "
+    print ("--------- auto update version -------- ")
 
 
 def libLint():
