@@ -44,7 +44,7 @@ def podCommandEdit():
         pod_push_command += source_suffix
 
     else:
-        lib_command = 'pod lib lint'
+        lib_command = 'pod lib lint' + push_allow_warnings
 
 
 def updateVersion():
