@@ -7,7 +7,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-static MZSIOSocket *socket = nil;
+static MZSIOSocket *mzs_socket = nil;
 
 static NSString *SIOMD5(NSString *string) {
     const char *cstr = [string UTF8String];
@@ -58,9 +58,9 @@ static NSString *SIOMD5(NSString *string) {
 }
 
 + (void)socketWithHost:(NSString *)hostURL reconnectAutomatically:(BOOL)reconnectAutomatically attemptLimit:(NSInteger)attempts withDelay:(NSTimeInterval)reconnectionDelay maximumDelay:(NSTimeInterval)maximumDelay timeout:(NSTimeInterval)timeout withTransports:(NSArray*)transports Token:(NSString *)token response:(void (^)(MZSIOSocket *))response {
-    socket = [[MZSIOSocket alloc] init];
-    socket.isConnected = NO;
-    if (!socket) {
+    mzs_socket = [[MZSIOSocket alloc] init];
+    mzs_socket.isConnected = NO;
+    if (!mzs_socket) {
         dispatch_async(dispatch_get_main_queue(), ^{
             response(nil);
         });
@@ -69,15 +69,15 @@ static NSString *SIOMD5(NSString *string) {
     
     NSString *pre = @"UI";
     NSString *web = @"WebView";
-    socket.javascriptWebView = [[NSClassFromString([NSString stringWithFormat:@"%@%@",pre,web]) alloc] init];
-    [socket.javascriptContext setExceptionHandler: ^(JSContext *context, JSValue *errorValue) {
+    mzs_socket.javascriptWebView = [[NSClassFromString([NSString stringWithFormat:@"%@%@",pre,web]) alloc] init];
+    [mzs_socket.javascriptContext setExceptionHandler: ^(JSContext *context, JSValue *errorValue) {
         NSLog(@"JSError: %@", errorValue);
         NSLog(@"%@", [NSThread callStackSymbols]);
     }];
     
     
-    __weak typeof(socket) weakSocket = socket;
-//    socket.javascriptContext[@"window"][@"onload"] = ^() {
+    __weak typeof(mzs_socket) weakSocket = mzs_socket;
+//    mzs_socket.javascriptContext[@"window"][@"onload"] = ^() {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 
         weakSocket.thread = [NSThread currentThread];
@@ -97,7 +97,7 @@ static NSString *SIOMD5(NSString *string) {
         weakSocket.javascriptContext[@"objc_socket"] = [weakSocket.javascriptContext evaluateScript: socketConstructor];
         if (![weakSocket.javascriptContext[@"objc_socket"] toObject]) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                socket.isConnected = NO;
+                mzs_socket.isConnected = NO;
                 response(nil);
             });
         }
@@ -105,8 +105,8 @@ static NSString *SIOMD5(NSString *string) {
         // Responders
         weakSocket.javascriptContext[@"objc_onConnect"] = ^() {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                socket.isConnected = YES;
-                response(socket);
+                mzs_socket.isConnected = YES;
+                response(mzs_socket);
                 if (weakSocket.onConnect)
                     weakSocket.onConnect();
             });
@@ -114,7 +114,7 @@ static NSString *SIOMD5(NSString *string) {
         
         weakSocket.javascriptContext[@"objc_onConnectError"] = ^(NSDictionary *errorDictionary) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                socket.isConnected = NO;
+                mzs_socket.isConnected = NO;
                 response(errorDictionary);
                 if (weakSocket.onConnectError)
                     weakSocket.onConnectError(errorDictionary);
@@ -123,7 +123,7 @@ static NSString *SIOMD5(NSString *string) {
         
         weakSocket.javascriptContext[@"objc_onDisconnect"] = ^() {
             dispatch_async(dispatch_get_main_queue(), ^{
-                socket.isConnected = NO;
+                mzs_socket.isConnected = NO;
                 response(nil);
                 if (weakSocket.onDisconnect)
                     weakSocket.onDisconnect();
@@ -132,7 +132,7 @@ static NSString *SIOMD5(NSString *string) {
         
         weakSocket.javascriptContext[@"objc_onError"] = ^(NSDictionary *errorDictionary) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                socket.isConnected = NO;
+                mzs_socket.isConnected = NO;
                 response(errorDictionary);
                 if (weakSocket.onError)
                     weakSocket.onError(errorDictionary);
@@ -141,7 +141,7 @@ static NSString *SIOMD5(NSString *string) {
         
         weakSocket.javascriptContext[@"objc_onReconnect"] = ^(NSInteger numberOfAttempts) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                socket.isConnected = NO;
+                mzs_socket.isConnected = NO;
                 if (weakSocket.onReconnect)
                     weakSocket.onReconnect(numberOfAttempts);
             });
@@ -149,7 +149,7 @@ static NSString *SIOMD5(NSString *string) {
         
         weakSocket.javascriptContext[@"objc_onReconnectionAttempt"] = ^(NSInteger numberOfAttempts) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                socket.isConnected = NO;
+                mzs_socket.isConnected = NO;
                 if (weakSocket.onReconnectionAttempt)
                     weakSocket.onReconnectionAttempt(numberOfAttempts);
             });
@@ -157,7 +157,7 @@ static NSString *SIOMD5(NSString *string) {
         
         weakSocket.javascriptContext[@"objc_onReconnectionError"] = ^(NSDictionary *errorDictionary) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                socket.isConnected = NO;
+                mzs_socket.isConnected = NO;
                 if (weakSocket.onReconnectionError)
                     weakSocket.onReconnectionError(errorDictionary);
             });
@@ -172,10 +172,10 @@ static NSString *SIOMD5(NSString *string) {
 //    };
 });
     
-    [socket.javascriptWebView loadHTMLString: @"<html/>" baseURL: nil];
+    [mzs_socket.javascriptWebView loadHTMLString: @"<html/>" baseURL: nil];
     
 //    dispatch_async(dispatch_get_main_queue(), ^{
-//        response(socket);
+//        response(mzs_socket);
 //    });
 }
 
@@ -185,13 +185,13 @@ static NSString *SIOMD5(NSString *string) {
 
 // Accessors
 - (JSContext *)javascriptContext {
-    return [socket.javascriptWebView valueForKeyPath: @"documentView.webView.mainFrame.javaScriptContext"];
+    return [mzs_socket.javascriptWebView valueForKeyPath: @"documentView.webView.mainFrame.javaScriptContext"];
 }
 
 // Event listeners
 - (void)on:(NSString *)event callback:(void (^)(SIOParameterArray *args))function {
     NSString *eventID = SIOMD5(event);
-    socket.javascriptContext[[NSString stringWithFormat: @"objc_%@", eventID]] = ^() {
+    mzs_socket.javascriptContext[[NSString stringWithFormat: @"objc_%@", eventID]] = ^() {
         NSMutableArray *arguments = [NSMutableArray array];
         for (JSValue *object in [JSContext currentArguments]) {
             if ([object toObject]) {
@@ -205,12 +205,12 @@ static NSString *SIOMD5(NSString *string) {
     };
     
     NSString* script = [NSString stringWithFormat: @"objc_socket.on('%@', objc_%@);", event, eventID];
-    [socket performSelector:@selector(evaluateScript:) onThread:socket.thread withObject:[script copy] waitUntilDone:NO];
+    [mzs_socket performSelector:@selector(evaluateScript:) onThread:mzs_socket.thread withObject:[script copy] waitUntilDone:NO];
 }
 
 // Emitters
 - (void)emit:(NSString *)event {
-    [socket emit: event args: nil];
+    [mzs_socket emit: event args: nil];
 }
 
 - (void)emit:(NSString *)event args:(SIOParameterArray *)args {
@@ -239,20 +239,20 @@ static NSString *SIOMD5(NSString *string) {
     }
     
     NSString* script = [NSString stringWithFormat: @"objc_socket.emit(%@);", [arguments componentsJoinedByString: @", "]];
-    [socket performSelector:@selector(evaluateScript:) onThread:socket.thread withObject:[script copy] waitUntilDone:NO];
+    [mzs_socket performSelector:@selector(evaluateScript:) onThread:mzs_socket.thread withObject:[script copy] waitUntilDone:NO];
 }
 
 - (void)evaluateScript:(NSString *)script {
-    [socket.javascriptContext evaluateScript:script];
+    [mzs_socket.javascriptContext evaluateScript:script];
 }
 
 - (void)close {
-//    [socket.javascriptWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:@"about:blank"]]];
-    [socket.thread cancel];
-    socket.thread = nil;
-//    [socket.javascriptWebView reload];
-    socket.javascriptWebView = nil;
-    socket = nil;
+//    [mzs_socket.javascriptWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:@"about:blank"]]];
+    [mzs_socket.thread cancel];
+    mzs_socket.thread = nil;
+//    [mzs_socket.javascriptWebView reload];
+    mzs_socket.javascriptWebView = nil;
+    mzs_socket = nil;
 }
 
 @end
